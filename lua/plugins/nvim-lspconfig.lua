@@ -15,6 +15,17 @@ return { -- LSP Configuration & Plugins
     { 'folke/neodev.nvim', opts = {} },
   },
   config = function()
+    local lspconfig = require 'lspconfig'
+    local mason_registry = require 'mason-registry'
+    local typescript_server_path = mason_registry.get_package('typescript-language-server'):get_install_path() .. '/node_modules/typescript/lib/tsserver.js'
+
+    lspconfig.volar.setup {
+      init_options = {
+        typescript = {
+          tsdk = typescript_server_path,
+        },
+      },
+    }
     -- Brief aside: **What is LSP?**
     --
     -- LSP is an initialism you've probably heard, but might not understand what it is.
@@ -201,12 +212,30 @@ return { -- LSP Configuration & Plugins
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
     require('mason-lspconfig').setup {
+      ensure_installed = {
+        'tsserver',
+        'volar@1.8.27',
+        'emmet_ls',
+        'cssls',
+        'css_variables',
+        'tailwindcss',
+        'eslint',
+        'html',
+        'intelephense',
+      },
       handlers = {
         function(server_name)
           local server = servers[server_name] or {}
           -- This handles overriding only values explicitly passed
           -- by the server configuration above. Useful when disabling
           -- certain features of an LSP (for example, turning off formatting for tsserver)
+          -- if server_name == 'volar' then
+          --   server_config.filetypes = { 'vue', 'typescript', 'javascript' }
+          -- end
+          if server_name == 'volar' then
+            server.filetypes = { 'vue', 'typescript', 'javascript' }
+          end
+
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
           require('lspconfig')[server_name].setup(server)
         end,
