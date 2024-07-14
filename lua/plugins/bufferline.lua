@@ -24,6 +24,6 @@ return {
   keys = {
     { '<Tab>', ':BufferLineCycleNext<CR>', { desc = 'Navigate to next buffer' } },
     { '<S-Tab>', ':BufferLineCyclePrev<CR>', { desc = 'Navigate to previous buffer' } },
-    { '<Leader>c', ':bd<CR>', { desc = 'Close current buffer' } },
+    { '<Leader>x', ':bd<CR>', { desc = 'Close current buffer' } },
   },
 }
