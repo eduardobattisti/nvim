@@ -12,11 +12,11 @@ return { -- Useful plugin to show you pending keybinds. 'folke/which-key.nvim',
 
     -- Document existing key chains
     require('which-key').add {
-      { '<leader>l', group = '[L]sp', icon = '' },
+      { '<leader>l', group = '[L]sp', icon = '󰈔' },
       { '<leader>d', group = '[D]ebug', icon = '' },
       { '<leader>S', group = '[S]ession', icon = '' },
       { '<leader>f', group = '[F]ind', icon = '󰭎' },
-      { '<leader>t', group = '[T]erminal', icon = ' ' },
+      { '<leader>t', group = '[T]erminal', icon = '' },
       { '<leader>g', group = '[G]it', icon = '' },
       { '<leader>c', group = '[C]onfig', icon = '' },
     }
