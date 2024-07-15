@@ -16,7 +16,7 @@ return {
         file = '',
         files = '',
         open_folder = '',
-        config = '',
+        session = '󰙅',
         close = '󰈆',
         git = '',
       },
@@ -67,7 +67,7 @@ return {
 
       local git_branch_section = {
         type = 'text',
-        val = ' ' .. git_repo .. ':' .. string.sub(git_branch, 5, #git_branch),
+        val = ' ' .. git_repo .. ':' .. git_branch,
         opts = { position = 'center' },
       }
 
@@ -106,12 +106,14 @@ return {
       type = 'group',
       val = {
         dashboard.button('e', icons.ui.file .. '  New file', '<cmd>new<CR>'),
+        dashboard.button('f', icons.ui.files .. '  Find Files', '<cmd>Telescope find_files<cr>'),
         dashboard.button('o', icons.ui.files .. '  Recent Files', '<cmd>Telescope oldfiles<cr>'),
-        -- dashboard.button('f', icons.ui.open_folder .. '  Explorer', '<cmd>Oil<cr>'),
-        -- dashboard.button('c', icons.ui.config .. '  Neovim config', '<cmd>Oil /home/cafebabe/install/dotfiles/config/nvim<cr>'),
-        -- dashboard.button('g', icons.ui.git .. '  Open Git', '<cmd>Neogit<CR>'),
-        dashboard.button('l', '󰒲  Lazy', '<cmd>Lazy<cr>'),
+        dashboard.button('g', icons.ui.git .. '  Lazy Git', '<cmd>LazyGit<CR>'),
+        dashboard.button('s', icons.ui.session .. '  Show Sessions', "<cmd>lua require('resession').load()<CR>"),
         dashboard.button('q', icons.ui.close .. '  Quit NVIM', ':qa<CR>'),
+      },
+      opts = {
+        spacing = 1,
       },
     }
 
