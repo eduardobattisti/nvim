@@ -8,7 +8,29 @@ return {
   },
   cmd = 'Neotree',
   keys = {
-    { '<Leader>e', ':Neotree toggle<CR>', { desc = 'NeoTree toggle' } },
+    {
+      '<Leader>e',
+      function()
+        local neotree = require 'neo-tree'
+        local bufnr_list = vim.api.nvim_list_bufs()
+        local neotree_open = false
+
+        for _, bufnr in ipairs(bufnr_list) do
+          if vim.api.nvim_get_option_value('filetype', { buf = bufnr }) == 'neo-tree' then
+            neotree_open = true
+            break
+          end
+        end
+        if neotree_open then
+          neotree.close_all()
+          return
+        end
+
+        vim.api.nvim_command 'Neotree reveal'
+      end,
+      desc = 'which_key_ignore',
+    },
+    { '<Leader>gs', ':Neotree source=git_status<CR>', desc = 'Neotree Git Status' },
   },
   opts = {
     close_if_last_window = false,
