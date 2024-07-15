@@ -11,9 +11,9 @@ return {
     local resession = require 'resession'
     resession.setup(opts)
 
-    vim.keymap.set('n', '<leader>ss', resession.save, { desc = 'Save the current session' })
-    vim.keymap.set('n', '<leader>sl', resession.load, { desc = 'Load a session' })
-    vim.keymap.set('n', '<leader>sd', resession.delete, { desc = 'Delete a session' })
+    vim.keymap.set('n', '<leader>Ss', resession.save, { desc = 'Save the current session' })
+    vim.keymap.set('n', '<leader>Sl', resession.load, { desc = 'Load a session' })
+    vim.keymap.set('n', '<leader>Sd', resession.delete, { desc = 'Delete a session' })
 
     vim.api.nvim_create_autocmd('VimLeavePre', {
       callback = function()
