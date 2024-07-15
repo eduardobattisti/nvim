@@ -4,7 +4,7 @@ return { -- Useful plugin to show you pending keybinds. 'folke/which-key.nvim',
   opts = {
     win = {
       title = false,
-      border = 'single',
+      border = 'rounded',
     },
   },
   config = function(_, opts) -- This is the function that runs, AFTER loading
