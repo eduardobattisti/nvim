@@ -5,6 +5,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 vim.g.have_nerd_font = true
+vim.opt.termguicolors = true
 vim.opt.number = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
