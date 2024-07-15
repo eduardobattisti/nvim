@@ -19,6 +19,11 @@ return {
           text_align = 'center',
         },
       },
+      custom_filter = function(buf_number, _)
+        if vim.bo[buf_number].filetype ~= 'qf' then
+          return true
+        end
+      end,
     },
   },
   keys = {
