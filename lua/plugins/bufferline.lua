@@ -1,4 +1,4 @@
-return {
+return { -- Buffers tab
   'akinsho/bufferline.nvim',
   event = 'VeryLazy',
   version = '*',
