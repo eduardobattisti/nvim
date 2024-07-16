@@ -22,5 +22,5 @@ vim.keymap.set('n', '<C-u>', '<C-u>zz', { desc = 'Paste without lose the copied 
 vim.keymap.set('n', 'n', 'nzzzv', { desc = 'Keep cursor on middle of the screen when highlight' })
 vim.keymap.set('n', 'N', 'Nzzzv', { desc = 'Keep cursor on middle of the screen when highlight' })
 
-vim.keymap.set('n', '<Leader>s', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'Update all words under cursor on the file' })
+vim.keymap.set('n', '<Leader>c', [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = 'Update all words under cursor on the file' })
 vim.keymap.set('n', '<Leader>rn', '<cmd>set rnu!<CR>', { desc = 'Toggle relativenumber' })
