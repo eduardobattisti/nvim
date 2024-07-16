@@ -14,6 +14,7 @@ return { -- Useful plugin to show you pending keybinds. 'folke/which-key.nvim',
     require('which-key').add {
       { '<leader>l', group = '[L]sp', icon = '󰈔' },
       { '<leader>d', group = '[D]ebug', icon = '' },
+      { '<leader>s', group = '[S]urround', icon = '󱃗' },
       { '<leader>S', group = '[S]ession', icon = '' },
       { '<leader>f', group = '[F]ind', icon = '󰭎' },
       { '<leader>t', group = '[T]erminal', icon = '' },
