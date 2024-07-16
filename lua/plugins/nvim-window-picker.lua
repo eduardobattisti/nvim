@@ -11,6 +11,14 @@ return {
       hint = 'floating-big-letter',
     }
 
-    vim.keymap.set('n', '<Leader>wp', window_picker.pick_window, { desc = 'Window Picker' })
+    vim.keymap.set('n', '<Leader>wp', function()
+      local window_id = require('window-picker').pick_window()
+
+      if window_id then
+        vim.api.nvim_set_current_win(window_id)
+      else
+        vim.notify('No window selected', 'info')
+      end
+    end, { desc = 'Window Picker' })
   end,
 }
