@@ -27,7 +27,15 @@ return {
     end
 
     local function pad(n)
-      return { type = 'padding', val = n }
+      local padding = { type = 'padding', val = n }
+
+      if n == 'auto' then
+        local height = vim.api.nvim_win_get_height(0)
+        padding.val = math.floor(height / 4)
+
+        return padding
+      end
+      return padding
     end
 
     local function center_header(header)
@@ -37,7 +45,7 @@ return {
       end
 
       local width = vim.api.nvim_win_get_width(0) -- Get the width of the current window
-      local padding = math.floor((width - #lines[1]) / 0.65) -- Calculate padding based on the first line length
+      local padding = math.floor((width - #lines[1]) / 0.8) -- Calculate padding based on the first line length
       for i, line in ipairs(lines) do
         lines[i] = string.rep(' ', padding) .. line
       end
@@ -114,6 +122,7 @@ return {
       },
       opts = {
         spacing = 1,
+        position = 'center',
       },
     }
 
@@ -127,14 +136,14 @@ return {
     -- Custom section with a personal greeting
     local bottom_section = {
       type = 'text',
-      val = "Hi eduardobattisti, It's" .. os.date ' %H:%M.' .. ' How are you doing today?',
+      val = "Hi eduardobattisti. It's" .. os.date ' %H:%M.' .. ' How are you doing today?',
       opts = { position = 'center' },
     }
 
     -- Setting up the alpha layout
     alpha.setup {
       layout = {
-        pad(2),
+        pad 'auto',
         header,
         pad(1),
         git_branch_section,
