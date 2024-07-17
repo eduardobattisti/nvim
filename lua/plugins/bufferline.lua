@@ -27,8 +27,8 @@ return { -- Buffers tab
     },
   },
   keys = {
-    { '<Tab>', ':BufferLineCycleNext<CR>', { desc = 'Navigate to next buffer' } },
-    { '<S-Tab>', ':BufferLineCyclePrev<CR>', { desc = 'Navigate to previous buffer' } },
-    { '<Leader>x', ':bd<CR>', desc = 'which_key_ignore' },
+    { '<Tab>', '<cmd>:BufferLineCycleNext<CR>', { desc = 'Navigate to next buffer' } },
+    { '<S-Tab>', '<cmd>:BufferLineCyclePrev<CR>', { desc = 'Navigate to previous buffer' } },
+    { '<Leader>x', '<cmd>:bd<CR>', desc = 'which_key_ignore' },
   },
 }
