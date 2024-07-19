@@ -1,3 +1,63 @@
+local TS_INLAY_HINTS = {
+  includeInlayEnumMemberValueHints = true,
+  includeInlayFunctionLikeReturnTypeHints = true,
+  includeInlayFunctionParameterTypeHints = true,
+  includeInlayParameterNameHints = 'all',
+  includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+  includeInlayPropertyDeclarationTypeHints = true,
+  includeInlayVariableTypeHints = true,
+}
+local TS_FILETYPES = {
+  'javascript',
+  'javascriptreact',
+  'javascript.jsx',
+  'typescript',
+  'typescriptreact',
+  'typescript.tsx',
+  'vue',
+}
+local TS_SERVER = 'vtsls'
+local VTSLS_TYPESCRIPT_JAVASCRIPT_CONFIG = {
+  updateImportsOnFileMove = { enabled = 'always' },
+  suggest = {
+    completeFunctionCalls = true,
+  },
+  inlayHints = {
+    enumMemberValues = { enabled = true },
+    functionLikeReturnTypes = { enabled = true },
+    parameterNames = { enabled = 'literals' },
+    parameterTypes = { enabled = true },
+    propertyDeclarationTypes = { enabled = true },
+    variableTypes = { enabled = false },
+  },
+}
+local TS_SERVER_HANDLERS = {
+  ['textDocument/publishDiagnostics'] = function(_, result, ctx, config)
+    if result.diagnostics == nil then
+      return
+    end
+
+    -- ignore some tsserver diagnostics
+    local idx = 1
+    while idx <= #result.diagnostics do
+      local entry = result.diagnostics[idx]
+
+      -- local formatter = ergou.tsformat[entry.code]
+      entry.message = formatter and formatter(entry.message) or entry.message
+
+      -- codes: https://github.com/microsoft/TypeScript/blob/main/src/compiler/diagnosticMessages.json
+      if entry.code == 80001 then
+        -- { message = "File is a CommonJS module; it may be converted to an ES module.", }
+        table.remove(result.diagnostics, idx)
+      else
+        idx = idx + 1
+      end
+    end
+
+    vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
+  end,
+}
+
 return { -- LSP Configuration & Plugins
   'neovim/nvim-lspconfig',
   dependencies = {
@@ -5,9 +65,6 @@ return { -- LSP Configuration & Plugins
     { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
     'williamboman/mason-lspconfig.nvim',
     'WhoIsSethDaniel/mason-tool-installer.nvim',
-
-    -- Useful status updates for LSP.
-    -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
     { 'j-hui/fidget.nvim', opts = {} },
 
     -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -42,98 +99,78 @@ return { -- LSP Configuration & Plugins
     local mason_registry = require 'mason-registry'
     local typescript_server_path = mason_registry.get_package('typescript-language-server'):get_install_path() .. '/node_modules/typescript/lib/tsserver.js'
 
-    lspconfig.volar.setup {
-      init_options = {
-        typescript = {
-          tsdk = typescript_server_path,
-        },
-      },
-    }
+    local has_volar, volar = pcall(mason_registry.get_package, 'vue-language-server')
+    local vue_ts_plugin_path = volar:get_install_path() .. '/node_modules/@vue/language-server'
+    local vue_plugin = {}
+    if has_volar then
+      vue_plugin = {
+        name = '@vue/typescript-plugin',
+        -- Maybe a function to get the location of the plugin is better?
+        -- e.g. pnpm fallback to nvm fallback to default node path
+        location = vue_ts_plugin_path,
+        languages = { 'vue' },
+        configNamespace = 'typescript',
+        enableForWorkspaceTypeScriptVersions = true,
+      }
+    end
+
+    -- lspconfig.volar.setup {
+    --   init_options = {
+    --     typescript = {
+    --       tsdk = typescript_server_path,
+    --     },
+    --   },
+    -- }
 
     vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded', silent = true })
     vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded', silent = true })
 
-    -- vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { focusable = false })
-    -- Brief aside: **What is LSP?**
-    --
-    -- LSP is an initialism you've probably heard, but might not understand what it is.
-    --
-    -- LSP stands for Language Server Protocol. It's a protocol that helps editors
-    -- and language tooling communicate in a standardized fashion.
-    --
-    -- In general, you have a "server" which is some tool built to understand a particular
-    -- language (such as `gopls`, `lua_ls`, `rust_analyzer`, etc.). These Language Servers
-    -- (sometimes called LSP servers, but that's kind of like ATM Machine) are standalone
-    -- processes that communicate with some "client" - in this case, Neovim!
-    --
-    -- LSP provides Neovim with features like:
-    --  - Go to definition
-    --  - Find references
-    --  - Autocompletion
-    --  - Symbol Search
-    --  - and more!
-    --
-    -- Thus, Language Servers are external tools that must be installed separately from
-    -- Neovim. This is where `mason` and related plugins come into play.
-    --
-    -- If you're wondering about lsp vs treesitter, you can check out the wonderfully
-    -- and elegantly composed help section, `:help lsp-vs-treesitter`
-
-    --  This function gets run when an LSP attaches to a particular buffer.
-    --    That is to say, every time a new file is opened that is associated with
-    --    an lsp (for example, opening `main.rs` is associated with `rust_analyzer`) this
-    --    function will be executed to configure the current buffer
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
       callback = function(event)
-        -- NOTE: Remember that Lua is a real programming language, and as such it is possible
-        -- to define small helper and utility functions so you don't have to repeat yourself.
-        --
-        -- In this case, we create a function that lets us more easily define mappings specific
-        -- for LSP related items. It sets the mode, buffer and description for us each time.
         local map = function(keys, func, desc)
           vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
         end
 
-        -- Jump to the definition of the word under your cursor.
-        --  This is where a variable was first declared, or where a function is defined, etc.
-        --  To jump back, press <C-t>.
+        -- vim.notify = require 'notify'
+        --
+        -- -- Function to handle LSP hover with notify
+        -- local function lsp_hover_with_notify(_, result, ctx, config)
+        --   if not (result and result.contents) then
+        --     return
+        --   end
+        --
+        --   local client = vim.lsp.get_client_by_id(ctx.client_id)
+        --   local server_name = client and client.name or 'Unknown LSP'
+        --
+        --   -- Format the hover message
+        --   local contents = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
+        --   contents = vim.lsp.util.trim_empty_lines(contents)
+        --   if vim.tbl_isempty(contents) then
+        --     return
+        --   end
+        --
+        --   local bufnr = vim.api.nvim_get_current_buf()
+        --   local notify_opts = {
+        --     title = 'LSP Hover (' .. server_name .. ')',
+        --     timeout = 5000,
+        --   }
+        --
+        --   -- Use nvim-notify to show the hover contents
+        --   vim.notify(table.concat(contents, '\n'), 'info', notify_opts)
+        -- end
+        --
+        -- vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(lsp_hover_with_notify, {})
+
         map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
-
-        -- Find references for the word under your cursor.
         map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-
-        -- Jump to the implementation of the word under your cursor.
-        --  Useful when your language has ways of declaring types without an actual implementation.
         map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
-
-        -- Jump to the type of the word under your cursor.
-        --  Useful when you're not sure what type a variable is and you want to see
-        --  the definition of its *type*, not where it was *defined*.
         map('<leader>lD', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
-
-        -- Fuzzy find all the symbols in your current document.
-        --  Symbols are things like variables, functions, types, etc.
         map('<leader>lds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-
-        -- Fuzzy find all the symbols in your current workspace.
-        --  Similar to document symbols, except searches over your entire project.
         map('<leader>lws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
-
-        -- Rename the variable under your cursor.
-        --  Most Language Servers support renaming across files, etc.
         map('<leader>lr', vim.lsp.buf.rename, '[R]ename')
-
-        -- Execute a code action, usually your cursor needs to be on top of an error
-        -- or a suggestion from your LSP for this to activate.
         map('<leader>la', vim.lsp.buf.code_action, '[C]ode [A]ction')
-
-        -- Opens a popup that displays documentation about the word under your cursor
-        --  See `:help K` for why this keymap.
         map('K', vim.lsp.buf.hover, 'Hover Documentation')
-
-        -- WARN: This is not Goto Definition, this is Goto Declaration.
-        --  For example, in C this would take you to the header.
         map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
         -- The following two autocommands are used to highlight references of the
@@ -194,19 +231,56 @@ return { -- LSP Configuration & Plugins
     --  - settings (table): Override the default settings passed when initializing the server.
     --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
     local servers = {
-      -- clangd = {},
-      -- gopls = {},
-      -- pyright = {},
-      -- rust_analyzer = {},
-      -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
-      --
-      -- Some languages (like typescript) have entire language plugins that can be useful:
-      --    https://github.com/pmizio/typescript-tools.nvim
-      --
-      -- But for many setups, the LSP (`tsserver`) will work just fine
-      -- tsserver = {},
-      --
-
+      vtsls = {
+        handlers = TS_SERVER_HANDLERS,
+        enabled = TS_SERVER == 'vtsls',
+        filetypes = TS_FILETYPES,
+        settings = {
+          complete_function_calls = true,
+          vtsls = {
+            enableMoveToFileCodeAction = true,
+            autoUseWorkspaceTsdk = true,
+            experimental = {
+              completion = {
+                enableServerSideFuzzyMatch = true,
+              },
+            },
+            tsserver = {
+              globalPlugins = {
+                vue_plugin,
+              },
+            },
+          },
+          typescript = VTSLS_TYPESCRIPT_JAVASCRIPT_CONFIG,
+          javascript = VTSLS_TYPESCRIPT_JAVASCRIPT_CONFIG,
+        },
+      },
+      tsserver = {
+        handlers = TS_SERVER_HANDLERS,
+        enabled = TS_SERVER == 'tsserver',
+        -- taken from https://github.com/typescript-language-server/typescript-language-server#workspacedidchangeconfiguration
+        init_options = {
+          plugins = {
+            vue_plugin,
+          },
+        },
+        filetypes = TS_FILETYPES,
+        settings = {
+          javascript = {
+            inlayHints = TS_INLAY_HINTS,
+          },
+          typescript = {
+            inlayHints = TS_INLAY_HINTS,
+          },
+        },
+      },
+      volar = {
+        init_options = {
+          vue = {
+            hybridMode = false,
+          },
+        },
+      },
       -- lua_ls = {
       --   -- cmd = {...},
       --   -- filetypes = { ...},
@@ -242,11 +316,9 @@ return { -- LSP Configuration & Plugins
     require('mason-lspconfig').setup {
       ensure_installed = {
         'tsserver',
-        'volar@1.8.27',
-        'emmet_ls',
+        'volar',
         'cssls',
         'css_variables',
-        'tailwindcss',
         'html',
         'intelephense',
       },
@@ -259,9 +331,9 @@ return { -- LSP Configuration & Plugins
           -- if server_name == 'volar' then
           --   server_config.filetypes = { 'vue', 'typescript', 'javascript' }
           -- end
-          if server_name == 'volar' then
-            server.filetypes = { 'vue', 'typescript', 'javascript' }
-          end
+          -- if server_name == 'volar' then
+          --   server.filetypes = { 'vue', 'typescript', 'javascript' }
+          -- end
 
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
           require('lspconfig')[server_name].setup(server)
