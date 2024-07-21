@@ -1,13 +1,12 @@
 return {
-  'rose-pine/neovim',
-  name = 'rose-pine',
-  priority = 1000, -- Make sure to load this before all the other start plugins.
-  lazy = false,
+  'catppuccin/nvim',
+  name = 'catppuccin',
+  priority = 1000,
   opts = {
-    variant = 'moon',
+    flavour = 'macchiato',
   },
   init = function()
-    vim.cmd.colorscheme 'rose-pine'
+    vim.cmd.colorscheme 'catppuccin'
     vim.cmd.hi 'Comment gui=none'
   end,
 }
