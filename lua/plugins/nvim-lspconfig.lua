@@ -114,16 +114,10 @@ return { -- LSP Configuration & Plugins
       }
     end
 
-    -- lspconfig.volar.setup {
-    --   init_options = {
-    --     typescript = {
-    --       tsdk = typescript_server_path,
-    --     },
-    --   },
-    -- }
-
-    vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded', silent = true })
-    vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded', silent = true })
+    local handlers = {
+      ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded', silent = true }),
+      ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded', silent = true }),
+    }
 
     vim.api.nvim_create_autocmd('LspAttach', {
       group = vim.api.nvim_create_augroup('kickstart-lsp-attach', { clear = true }),
@@ -131,36 +125,6 @@ return { -- LSP Configuration & Plugins
         local map = function(keys, func, desc)
           vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
         end
-
-        -- vim.notify = require 'notify'
-        --
-        -- -- Function to handle LSP hover with notify
-        -- local function lsp_hover_with_notify(_, result, ctx, config)
-        --   if not (result and result.contents) then
-        --     return
-        --   end
-        --
-        --   local client = vim.lsp.get_client_by_id(ctx.client_id)
-        --   local server_name = client and client.name or 'Unknown LSP'
-        --
-        --   -- Format the hover message
-        --   local contents = vim.lsp.util.convert_input_to_markdown_lines(result.contents)
-        --   contents = vim.lsp.util.trim_empty_lines(contents)
-        --   if vim.tbl_isempty(contents) then
-        --     return
-        --   end
-        --
-        --   local bufnr = vim.api.nvim_get_current_buf()
-        --   local notify_opts = {
-        --     title = 'LSP Hover (' .. server_name .. ')',
-        --     timeout = 5000,
-        --   }
-        --
-        --   -- Use nvim-notify to show the hover contents
-        --   vim.notify(table.concat(contents, '\n'), 'info', notify_opts)
-        -- end
-        --
-        -- vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(lsp_hover_with_notify, {})
 
         map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
         map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -281,6 +245,46 @@ return { -- LSP Configuration & Plugins
           },
         },
       },
+      tailwindcss = {
+        settings = {
+          tailwindCSS = {
+            includeLanguages = { 'html', 'postcss', 'stylus', 'vue', 'typescrip', 'javascript' },
+            experimental = {
+              classRegex = {
+                ---@see https://github.com/RayGuo-ergou/tailwind-intellisense-regex-list?tab=readme-ov-file#plain-javascript-object
+                ---All javascript object, only enable when needed e.g. long object
+                -- ':\\s*?["\'`]([^"\'`]*).*?,',
+                '\\/\\*\\s*tw\\s*\\*\\/\\s*[`\'"](.*)[`\'"];?',
+                '@tw\\s\\*/\\s+["\'`]([^"\'`]*)',
+                { '(?:twMerge|twJoin)\\(([^\\);]*)[\\);]', '[`\'"]([^\'"`,;]*)[`\'"]' },
+                'twc\\`(.*)\\`;?',
+                '(?:clsx|cva|cn)[`]([\\s\\S][^`]*)[`]',
+                { '(?:clsx|cva|cn)\\(([^)]*)\\)', "(?:'|\"|`)([^']*)(?:'|\"|`)" },
+                { 'ui:\\s*{([^)]*)\\s*}', '["\'`]([^"\'`]*).*?["\'`]' },
+                { '/\\*\\s?ui\\s?\\*/\\s*{([^;]*)}', ':\\s*["\'`]([^"\'`]*).*?["\'`]' },
+                'class\\s*:\\s*["\'`]([^"\'`]*)["\'`]',
+                ---@see https://github.com/RayGuo-ergou/tailwind-intellisense-regex-list?tab=readme-ov-file#dom
+                { 'classList.(?:add|remove)\\(([^)]*)\\)', '(?:\'|"|`)([^"\'`]*)(?:\'|"|`)' },
+                ---@see https://github.com/RayGuo-ergou/tailwind-intellisense-regex-list?tab=readme-ov-file#typescript-or-javascript-variables-strings-or-arrays-with-keyword
+                { 'Styles\\s*(?::\\s*[^=]+)?\\s*=\\s*([^;]*);', '[\'"`]([^\'"`]*)[\'"`]' },
+                ---@see https://github.com/RayGuo-ergou/tailwind-intellisense-regex-list?tab=readme-ov-file#headlessui-transition-react
+                '(?:enter|leave)(?:From|To)?=\\s*(?:"|\'|{`)([^(?:"|\'|`})]*)',
+              },
+            },
+            classAttributes = {
+              'class',
+              'className',
+              'class:list',
+              'classList',
+              'ngClass',
+              'ui',
+            },
+          },
+        },
+      },
+      lua_ls = {
+        handlers = handlers,
+      },
       -- lua_ls = {
       --   -- cmd = {...},
       --   -- filetypes = { ...},
@@ -328,12 +332,6 @@ return { -- LSP Configuration & Plugins
           -- This handles overriding only values explicitly passed
           -- by the server configuration above. Useful when disabling
           -- certain features of an LSP (for example, turning off formatting for tsserver)
-          -- if server_name == 'volar' then
-          --   server_config.filetypes = { 'vue', 'typescript', 'javascript' }
-          -- end
-          -- if server_name == 'volar' then
-          --   server.filetypes = { 'vue', 'typescript', 'javascript' }
-          -- end
 
           server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
           require('lspconfig')[server_name].setup(server)
