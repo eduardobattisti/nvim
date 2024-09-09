@@ -219,9 +219,9 @@ return { -- LSP Configuration & Plugins
           javascript = VTSLS_TYPESCRIPT_JAVASCRIPT_CONFIG,
         },
       },
-      tsserver = {
+      ts_ls = {
         handlers = TS_SERVER_HANDLERS,
-        enabled = TS_SERVER == 'tsserver',
+        enabled = TS_SERVER == 'ts_ls',
         -- taken from https://github.com/typescript-language-server/typescript-language-server#workspacedidchangeconfiguration
         init_options = {
           plugins = {
@@ -319,7 +319,7 @@ return { -- LSP Configuration & Plugins
 
     require('mason-lspconfig').setup {
       ensure_installed = {
-        'tsserver',
+        'ts_ls',
         'volar',
         'cssls',
         'css_variables',
