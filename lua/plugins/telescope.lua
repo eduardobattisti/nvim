@@ -55,6 +55,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     -- See `:help telescope` and `:help telescope.setup()`
     require('telescope').setup {
       defaults = {
+        file_ignore_patterns = { 'node_modules', 'vendor' },
         sorting_strategy = 'ascending',
         layout_config = {
           horizontal = {
