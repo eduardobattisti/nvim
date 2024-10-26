@@ -57,6 +57,14 @@ return { -- Fuzzy Finder (files, lsp, etc)
       defaults = {
         file_ignore_patterns = { 'node_modules', 'vendor' },
         sorting_strategy = 'ascending',
+        mappings = {
+          i = {
+            ['<leader>x'] = require('telescope.actions').delete_buffer,
+          },
+          n = {
+            ['<leader>x'] = require('telescope.actions').delete_buffer,
+          },
+        },
         layout_config = {
           horizontal = {
             prompt_position = 'top',
