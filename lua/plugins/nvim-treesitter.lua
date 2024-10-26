@@ -29,6 +29,11 @@ return {
       }
 
       vim.filetype.add {
+        extension = {
+          stylus = 'css',
+          postcss = 'sass',
+          pcss = 'sass',
+        },
         pattern = {
           ['.*%.blade%.php'] = 'blade',
         },
