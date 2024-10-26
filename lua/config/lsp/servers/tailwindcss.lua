@@ -59,7 +59,6 @@ local settings = {
 M.settings = settings
 M.filetypes = filetypes
 M.capabilities = capabilities
-M.handlers = handlers
 M.on_attach = on_attach
 
 return M
