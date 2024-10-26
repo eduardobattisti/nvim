@@ -173,6 +173,17 @@ return { -- LSP Configuration & Plugins
             settings = tailwind_config.settings,
           }
         end,
+
+        ['intelephense'] = function()
+          local intelephense_config = require 'config.lsp.servers.intelephense'
+
+          lspconfig.intelephense.setup {
+            capabilities = capabilities,
+            filetypes = intelephense_config.filetypes,
+            settings = intelephense_config.settings,
+            on_attach = on_attach,
+          }
+        end,
       },
     }
   end,
