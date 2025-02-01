@@ -1,6 +1,8 @@
 return {
   'rcarriga/nvim-notify',
-  opts = {},
+  opts = {
+    top_down = false,
+  },
   config = function(_, opts)
     local notify = require 'notify'
     notify.setup(opts)
