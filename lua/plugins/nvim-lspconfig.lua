@@ -111,7 +111,7 @@ return { -- LSP Configuration & Plugins
     }
 
     local function on_attach(client, bufnr)
-      vim.lsp.inlay_hint.enable(true, { bufnr })
+      -- vim.lsp.inlay_hint.enable(true, { bufnr })
     end
 
     require('mason-tool-installer').setup { ensure_installed = ensure_installed }
