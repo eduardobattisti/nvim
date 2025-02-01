@@ -127,7 +127,7 @@ local actions = {
 }
 
 local on_attach = function(_, bufnr)
-  vim.lsp.inlay_hint.enable(true, { bufnr })
+  -- vim.lsp.inlay_hint.enable(true, { bufnr })
 
   for _, action in ipairs(actions) do
     lsp_utils.keymap(action.key, action.callback, action.bufnr, action.desc)
