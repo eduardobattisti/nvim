@@ -7,6 +7,9 @@ vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 vim.opt.termguicolors = true
 vim.opt.number = true
+vim.opt.expandtab = true -- Use spaces instead of tabs
+vim.opt.shiftwidth = 2 -- Size of an indent
+vim.opt.tabstop = 2 -- Number of spaces tabs count for
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
