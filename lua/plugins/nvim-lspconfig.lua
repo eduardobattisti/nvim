@@ -84,7 +84,11 @@ return { -- LSP Configuration & Plugins
 
     -- You can add other tools here that you want Mason to install
     -- for you, so that they are available from within Neovim.
-    local ensure_installed = {} -- vim.tbl_keys(servers or {})
+    local ensure_installed = {
+      -- 'phpcs',
+      'markdownlint',
+      'php-debug-adapter',
+    } -- vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
       'stylua',
       'cssls',
@@ -180,7 +184,9 @@ return { -- LSP Configuration & Plugins
           lspconfig.intelephense.setup {
             capabilities = capabilities,
             filetypes = intelephense_config.filetypes,
-            settings = intelephense_config.settings,
+            settings = {
+              intelephense = intelephense_config.settings,
+            },
             on_attach = on_attach,
           }
         end,
