@@ -1,10 +1,8 @@
 root_dir = function(pattern)
-  -- Add wp-config to root-dir
   local cwd = vim.loop.cwd()
   local util = require 'lspconfig.util'
   local root = util.root_pattern('composer.json', '.git', 'wp-config.php')(pattern)
 
-  -- prefer cwd if root is a descendant
   return util.path.is_descendant(cwd, root) and cwd or root
 end
 
