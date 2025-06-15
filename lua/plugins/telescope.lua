@@ -35,7 +35,6 @@ return { -- Fuzzy Finder (files, lsp, etc)
       -- For major updates, this must be adjusted manually.
       version = '^1.0.0',
     },
-    { 'rcarriga/nvim-notify' },
   },
   config = function()
     -- Telescope is a fuzzy finder that comes with a lot of different things that
