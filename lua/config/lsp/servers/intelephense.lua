@@ -3,7 +3,7 @@ root_dir = function(pattern)
   local util = require 'lspconfig.util'
   local root = util.root_pattern('composer.json', '.git', 'wp-config.php')(pattern)
 
-  return util.path.is_descendant(cwd, root) and cwd or root
+  return util.path.is_descendant(cwd, root) and cwd or root or '';
 end
 
 local M = {}
