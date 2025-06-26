@@ -73,6 +73,11 @@ local settings = {
       },
     },
   },
+  init_options = {
+    plugins = {
+      vue_plugin,
+    }
+  },
   typescript = TS_JS_CONFIG,
   javascript = TS_JS_CONFIG,
 }
