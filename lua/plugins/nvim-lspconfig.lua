@@ -95,7 +95,7 @@ return { -- LSP Configuration & Plugins
       'css_variables',
       'html',
       'intelephense',
-      'volar',
+      'vue_ls',
       'vtsls',
     })
 

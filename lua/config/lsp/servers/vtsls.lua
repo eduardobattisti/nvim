@@ -20,7 +20,11 @@ local TS_JS_CONFIG = {
 }
 
 local mason_registry = require 'mason-registry'
-local has_volar, volar = pcall(mason_registry.get_package, 'vue-language-server')
+
+local has_volar, volar = pcall(function()
+    return mason_registry.get_package("vue-language-server")
+end)
+
 local vue_ts_plugin_path = volar:get_install_path() .. '/node_modules/@vue/language-server'
 local vue_plugin = {}
 
